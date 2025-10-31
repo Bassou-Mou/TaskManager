@@ -29,22 +29,22 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
-      - name: 🔍 Vérification du format du code
+      - name:  Vérification du format du code
         run: mvn spotless:check || true
 
-      - name: 🏗️ Compilation
+      - name:  Compilation
         run: mvn clean compile -B
 
-      - name: 🧪 Tests unitaires
+      - name:  Tests unitaires
         run: mvn test -B
 
-      - name: 🔬 Tests d'intégration
+      - name: Tests d'intégration
         run: mvn verify -B
 
-      - name: 📊 Analyse de couverture de code
+      - name:  Analyse de couverture de code
         run: mvn jacoco:report
 
-      - name: 📈 Upload du rapport JaCoCo
+      - name:  Upload du rapport JaCoCo
         uses: codecov/codecov-action@v4
         with:
           files: ./target/site/jacoco/jacoco.xml
@@ -52,14 +52,14 @@ jobs:
           name: codecov-taskmanager
         continue-on-error: true
 
-      - name: 🐛 Analyse SpotBugs
+      - name:  Analyse SpotBugs
         run: mvn spotbugs:check
         continue-on-error: true
 
-      - name: 📦 Package de l'application
+      - name:  Package de l'application
         run: mvn package -DskipTests -B
 
-      - name: 📤 Upload de l'artifact JAR
+      - name:  Upload de l'artifact JAR
         uses: actions/upload-artifact@v4
         with:
           name: taskmanager-jar
@@ -76,26 +76,26 @@ jobs:
     if: github.event_name == 'push'
     
     steps:
-      - name: 📥 Checkout du code
+      - name:  Checkout du code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0  # Nécessaire pour SonarCloud
 
-      - name: ☕ Configuration JDK 17
+      - name: Configuration JDK 17
         uses: actions/setup-java@v4
         with:
           java-version: ${{ env.JAVA_VERSION }}
           distribution: 'temurin'
           cache: maven
 
-      - name: 🔍 Cache SonarCloud
+      - name:  Cache SonarCloud
         uses: actions/cache@v4
         with:
           path: ~/.sonar/cache
           key: ${{ runner.os }}-sonar
           restore-keys: ${{ runner.os }}-sonar
 
-      - name: 📊 Analyse SonarCloud
+      - name:  Analyse SonarCloud
         run: |
           mvn clean verify sonar:sonar \
             -Dsonar.projectKey=votre-project-key \
@@ -114,19 +114,19 @@ jobs:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     
     steps:
-      - name: 📥 Checkout du code
+      - name:  Checkout du code
         uses: actions/checkout@v4
 
-      - name: 🐳 Configuration Docker Buildx
+      - name:  Configuration Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: 🔐 Login Docker Hub
+      - name:  Login Docker Hub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: 📝 Extraction des métadonnées Docker
+      - name:  Extraction des métadonnées Docker
         id: meta
         uses: docker/metadata-action@v5
         with:
@@ -136,7 +136,7 @@ jobs:
             type=sha,prefix={{branch}}-
             type=raw,value=latest,enable={{is_default_branch}}
 
-      - name: 🏗️ Build et Push de l'image Docker
+      - name: ️ Build et Push de l'image Docker
         uses: docker/build-push-action@v5
         with:
           context: .
@@ -146,7 +146,7 @@ jobs:
           cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/taskmanager:buildcache
           cache-to: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/taskmanager:buildcache,mode=max
 
-      - name: 🔍 Scan de sécurité de l'image
+      - name:  Scan de sécurité de l'image
         uses: aquasecurity/trivy-action@master
         with:
           image-ref: ${{ secrets.DOCKER_USERNAME }}/taskmanager:latest
@@ -154,7 +154,7 @@ jobs:
           output: 'trivy-results.sarif'
         continue-on-error: true
 
-      - name: 📤 Upload des résultats Trivy
+      - name:  Upload des résultats Trivy
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: 'trivy-results.sarif'
@@ -185,7 +185,7 @@ jobs:
             docker-compose up -d --force-recreate
             docker system prune -f
 
-      - name: ✅ Vérification du déploiement
+      - name:  Vérification du déploiement
         run: |
           sleep 10
           curl -f https://taskmanager-app.com/actuator/health || exit 1
